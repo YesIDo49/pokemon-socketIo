@@ -6,6 +6,8 @@ const userArea = document.querySelector('#user');
 const chatContainer = document.querySelector('.chat');
 const socket = io('http://localhost:3000');
 let messages = {};
+let starters = ['charizard', 'venusaur', 'blastoise'];
+let pokemons = [];
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -56,18 +58,15 @@ roomArea.addEventListener('change', (e) => {
     }
     socket.emit('join', newRoom);
     room = newRoom;
-
     displayMessages(room);
 });
 
-let starters = ['charizard', 'venusaur', 'blastoise'];
-let pokemons = [];
+
 
 function getPokemon() {
     starters.forEach(async (starter, index)  => {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
         const pokemon = await response.json();
-        pokemons.push(pokemon);
 
         let pokemonData = {};
         pokemonData.name = pokemon.name;
@@ -85,14 +84,18 @@ function getPokemon() {
                 moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast']
         }
 
-        moves.forEach(async (move) => {
-            const response = await fetch(`https://pokeapi.co/api/v2/move/${move}`)
-            const pokemonMove = await response.json()
-            pokemonMoves.push(pokemonMove)
-            pokemonData.moves = pokemonMoves;
-        });
+        for (const move of moves) {
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/move/${move}`)
+                const pokemonMove = await response.json()
+                pokemonMoves.push(pokemonMove)
+                pokemonData.moves = pokemonMoves;
+            } catch (error) {
+                console.error('Error fetching move:', move, error);
+            }
+        }
 
-        console.log(pokemonData)
+        pokemons.push(pokemonData);
     });
 }
 
