@@ -6,7 +6,6 @@ const userArea = document.querySelector('#user');
 // const chatContainer = document.querySelector('.chat');
 const pokemonContainer = document.querySelector('#choice-pokemon')
 const socket = io('http://localhost:3000');
-let messages = {};
 let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
 
@@ -14,39 +13,57 @@ socket.on('connect', () => {
     console.log('Connected');
 });
 
-socket.on('message', (data) => {
-    console.log('data : ' + data);
-    console.log('messages : ' + messages);
-    document.querySelector('.data').innerText = data;
-
-
-    messages[room] = messages[room] || [];
-    messages[room].push(data);
-
-    console.log(messages);
+socket.on('updateRooms', (rooms) => {
+    const roomsSelect = document.getElementById('rooms');
+    roomsSelect.innerHTML = '<option value="">Select a room</option>';
+    for (let room in rooms) {
+        const option = document.createElement('option');
+        option.value = room;
+        option.textContent = `${room} (${rooms[room].length}/2)`;
+        roomsSelect.appendChild(option);
+    }
 });
 
-socket.on('disconnect', () => {
-    console.log('Disconnected');
+socket.on('roomCreated', (roomName) => {
+    alert(`Room ${roomName} created successfully`);
 });
+
+socket.on('roomExists', () => {
+    alert('Room already exists');
+});
+
+socket.on('joinedRoom', (roomName) => {
+    alert(`Joined room ${roomName}`);
+});
+
+socket.on('roomFull', () => {
+    alert('Room is full');
+});
+
+function createRoom() {
+    const roomName = document.getElementById('roomName').value;
+    if (roomName) {
+        socket.emit('createRoom', roomName);
+    } else {
+        alert('Please enter a room name');
+    }
+}
+
+function joinRoom() {
+    const roomsSelect = document.getElementById('rooms');
+    const roomName = roomsSelect.value;
+    if (roomName) {
+        socket.emit('joinRoom', roomName);
+    } else {
+        alert('Please select a room');
+    }
+}
 
 let send = () => {
-
     displayPokemon();
 
     socket.emit('room', roomArea.value);
-
-    // displayMessages(roomArea.value);
 }
-
-// const displayMessages = (room) => {
-//     chatContainer.innerHTML = '';
-//     if (messages[room]) {
-//         messages[room].forEach((msg) => {
-//             chatContainer.innerHTML += `<div>${msg}</div>`;
-//         });
-//     }
-// };
 
 const displayPokemon = () => {
     pokemons.forEach((pokemon) => {
@@ -59,15 +76,15 @@ const displayPokemon = () => {
     })
 }
 
-roomArea.addEventListener('change', (e) => {
-    const newRoom = e.target.value;
-
-    if (room) {
-        socket.emit('leave', room);
-    }
-    socket.emit('join', newRoom);
-    room = newRoom;
-});
+// roomArea.addEventListener('change', (e) => {
+//     const newRoom = e.target.value;
+//
+//     if (room) {
+//         socket.emit('leave', room);
+//     }
+//     socket.emit('join', newRoom);
+//     room = newRoom;
+// });
 
 
 
