@@ -59,3 +59,41 @@ roomArea.addEventListener('change', (e) => {
 
     displayMessages(room);
 });
+
+let starters = ['charizard', 'venusaur', 'blastoise'];
+let pokemons = [];
+
+function getPokemon() {
+    starters.forEach(async (starter, index)  => {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
+        const pokemon = await response.json();
+        pokemons.push(pokemon);
+
+        let pokemonData = {};
+        pokemonData.name = pokemon.name;
+        pokemonData.type = pokemon.types[0].type.name;
+
+        let moves = [];
+        let pokemonMoves = []
+
+        switch (index) {
+            case 0:
+                moves = ['flamethrower', 'air-slash', 'dragon-pulse', 'slash']
+            case 1:
+                moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
+            case 2:
+                moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast']
+        }
+
+        moves.forEach(async (move) => {
+            const response = await fetch(`https://pokeapi.co/api/v2/move/${move}`)
+            const pokemonMove = await response.json()
+            pokemonMoves.push(pokemonMove)
+            pokemonData.moves = pokemonMoves;
+        });
+
+        console.log(pokemonData)
+    });
+}
+
+getPokemon();
