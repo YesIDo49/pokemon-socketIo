@@ -1,10 +1,58 @@
-.choice-pokemon {
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+body {
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.join-battle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: beige;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  margin: 2rem auto;
+}
+.join-battle input {
+  padding: 0.5rem;
+  margin: 1rem 0;
+  width: 100%;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+.join-battle button {
+  padding: 0.5rem;
+  margin: 1rem 0;
+  width: 40%;
+  border: 1px solid black;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.join-battle button:hover {
+  background-color: #e0e0e0;
+}
+
+.pokemon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+.pokemon-container .choice-pokemon {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   padding: 2rem;
+  width: 100%;
 }
-.choice-pokemon .pokemon-card {
+.pokemon-container .choice-pokemon .pokemon-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,19 +65,19 @@
   cursor: pointer;
   transition: all 0.3s ease-in-out;
 }
-.choice-pokemon .pokemon-card:hover {
+.pokemon-container .choice-pokemon .pokemon-card:hover {
   transform: scale(1.1);
 }
-.choice-pokemon .pokemon-card img {
+.pokemon-container .choice-pokemon .pokemon-card img {
   width: 100px;
   height: 100px;
 }
-.choice-pokemon .pokemon-card h2 {
+.pokemon-container .choice-pokemon .pokemon-card h2 {
   font-size: 1.5rem;
   margin: 1rem 0;
   text-transform: capitalize;
 }
-.choice-pokemon .pokemon-card h4 {
+.pokemon-container .choice-pokemon .pokemon-card h4 {
   font-size: 1rem;
   margin: 0.5rem 0;
   text-transform: capitalize;

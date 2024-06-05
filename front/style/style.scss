@@ -1,40 +1,92 @@
-.choice-pokemon{
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 2rem;
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+body{
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  .pokemon-card{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+.join-battle{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: beige;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 50%;
+  margin: 2rem auto;
+
+  input{
+    padding: 0.5rem;
+    margin: 1rem 0;
+    width: 100%;
     border: 1px solid black;
-    border-radius: 10px;
-    width: 200px;
-    height: 200px;
+    border-radius: 5px;
+  }
+
+  button{
+    padding: 0.5rem;
+    margin: 1rem 0;
+    width: 40%;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: #f0f0f0;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
 
     &:hover{
-      transform: scale(1.1);
+      background-color: #e0e0e0;
     }
+  }
+}
 
-    img{
-      width: 100px;
-      height: 100px;
-    }
+.pokemon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
 
-    h2{
-      font-size: 1.5rem;
-      margin: 1rem 0;
-      text-transform: capitalize;
-    }
-    h4{
-      font-size: 1rem;
-      margin: 0.5rem 0;
-      text-transform: capitalize;
+  .choice-pokemon{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 2rem;
+    width: 100%;
+
+    .pokemon-card{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      border: 1px solid black;
+      border-radius: 10px;
+      width: 200px;
+      height: 200px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+
+      &:hover{
+        transform: scale(1.1);
+      }
+
+      img{
+        width: 100px;
+        height: 100px;
+      }
+
+      h2{
+        font-size: 1.5rem;
+        margin: 1rem 0;
+        text-transform: capitalize;
+      }
+      h4{
+        font-size: 1rem;
+        margin: 0.5rem 0;
+        text-transform: capitalize;
+      }
     }
   }
 }

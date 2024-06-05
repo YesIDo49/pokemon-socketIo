@@ -49,7 +49,6 @@ let send = () => {
 // };
 
 const displayPokemon = () => {
-    pokemonContainer.innerHTML = '';
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
             `<div class="pokemon-card">

@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="style/style.css" rel="stylesheet" type="text/css">
-    <title>Document</title>
+    <title>Pokemon Battle</title>
 </head>
 <body>
-    <p>last message</p>
-    <p class="data"></p>
-    <p>User</p>
-    <textarea name="" id="user"></textarea>
-    <p>room</p>
-    <textarea name="" id="room"></textarea>
-    <button onclick="send()">send</button>
+    <div class="join-battle">
+        <label for="user">User</label>
+        <input name="" id="user"/>
+        <label for="room">Room</label>
+        <input name="" id="room"/>
 
-    <div id="choice-pokemon" class="choice-pokemon"></div>
+        <button onclick="send()">Join</button>
+    </div>
+
+    <div class="pokemon-container">
+        <h2>Choose your pokemon</h2>
+        <div id="choice-pokemon" class="choice-pokemon"></div>
+    </div>
 
 </body>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
