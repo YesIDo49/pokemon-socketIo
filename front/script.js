@@ -3,7 +3,8 @@ let socketid = '';
 const roomArea = document.querySelector('#room');
 const messageArea = document.querySelector('#message');
 const userArea = document.querySelector('#user');
-const chatContainer = document.querySelector('.chat');
+// const chatContainer = document.querySelector('.chat');
+const pokemonContainer = document.querySelector('#choice-pokemon')
 const socket = io('http://localhost:3000');
 let messages = {};
 let starters = ['charizard', 'venusaur', 'blastoise'];
@@ -30,25 +31,34 @@ socket.on('disconnect', () => {
 });
 
 let send = () => {
-    const message = messageArea.value;
-    console.log(message);
 
-    messages[roomArea.value] = messages[roomArea.value] || [];
-    messages[roomArea.value].push(message);
+    displayPokemon();
 
-    socket.emit('room', roomArea.value, `Chat from ${userArea.value} : ${message}`);
+    socket.emit('room', roomArea.value);
 
-    displayMessages(roomArea.value);
+    // displayMessages(roomArea.value);
 }
 
-const displayMessages = (room) => {
-    chatContainer.innerHTML = '';
-    if (messages[room]) {
-        messages[room].forEach((msg) => {
-            chatContainer.innerHTML += `<div>${msg}</div>`;
-        });
-    }
-};
+// const displayMessages = (room) => {
+//     chatContainer.innerHTML = '';
+//     if (messages[room]) {
+//         messages[room].forEach((msg) => {
+//             chatContainer.innerHTML += `<div>${msg}</div>`;
+//         });
+//     }
+// };
+
+const displayPokemon = () => {
+    pokemonContainer.innerHTML = '';
+    pokemons.forEach((pokemon) => {
+        pokemonContainer.innerHTML +=
+            `<div class="pokemon-card">
+                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                <h4>${pokemon.type} Type</h4>
+                <h2>${pokemon.name}</h2>
+            </div>`
+    })
+}
 
 roomArea.addEventListener('change', (e) => {
     const newRoom = e.target.value;
@@ -58,7 +68,6 @@ roomArea.addEventListener('change', (e) => {
     }
     socket.emit('join', newRoom);
     room = newRoom;
-    displayMessages(room);
 });
 
 
@@ -71,6 +80,7 @@ function getPokemon() {
         let pokemonData = {};
         pokemonData.name = pokemon.name;
         pokemonData.type = pokemon.types[0].type.name;
+        pokemonData.sprite = pokemon.sprites.front_default;
 
         let moves = [];
         let pokemonMoves = []
