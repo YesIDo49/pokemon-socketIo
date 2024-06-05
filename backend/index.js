@@ -18,52 +18,62 @@ app.get('/', (req, res) => {
     res.json('ip address: http://' + ip.address() + ':' + PORT);
 });
 
-let roomMessages = {};
 const rooms = {};
+const users = {};
 
 io.on('connection', (socket) => {
     console.log('A user connected');
 
     socket.emit('updateRooms', rooms);
 
-    socket.on('createRoom', (roomName) => {
+    function leaveCurrentRoom(socket) {
+        for (let roomName in rooms) {
+            const room = rooms[roomName];
+            const index = room.indexOf(socket.id);
+            if (index !== -1) {
+                room.splice(index, 1);
+                socket.leave(roomName);
+                if (room.length === 0) {
+                    delete rooms[roomName];
+                } else {
+                    io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
+                }
+                break;
+            }
+        }
+    }
+
+    socket.on('createRoom', ({ roomName, username }) => {
+        leaveCurrentRoom(socket);
+
         if (rooms[roomName]) {
             socket.emit('roomExists');
         } else {
+            users[socket.id] = username;
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('roomCreated', roomName);
             io.emit('updateRooms', rooms);
+            io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
         }
     });
 
-    socket.on('joinRoom', (roomName) => {
-        let currentRoom = null;
-        for (let room in rooms) {
-            if (rooms[room].includes(socket.id)) {
-                currentRoom = room;
-                break;
-            }
-        }
-
-        if (currentRoom) {
-            rooms[currentRoom] = rooms[currentRoom].filter(id => id !== socket.id);
-            socket.leave(currentRoom);
-            if (rooms[currentRoom].length === 0) {
-                delete rooms[currentRoom];
-            }
-        }
+    socket.on('joinRoom', ({ roomName, username }) => {
+        leaveCurrentRoom(socket);
 
         const room = rooms[roomName];
         if (room && room.length < 2) {
+            users[socket.id] = username;
             room.push(socket.id);
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
-            io.to(roomName).emit('userJoined', socket.id);
+            io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
         } else if (!room) {
+            users[socket.id] = username;
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
+            io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
         } else {
             socket.emit('roomFull');
         }
@@ -71,22 +81,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        for (let roomName in rooms) {
-            const room = rooms[roomName];
-            const index = room.indexOf(socket.id);
-            if (index !== -1) {
-                room.splice(index, 1);
-                if (room.length === 0) {
-                    delete rooms[roomName];
-                }
-                io.emit('updateRooms', rooms);
-                break;
-            }
-        }
+        leaveCurrentRoom(socket);
+        delete users[socket.id];
         console.log('A user disconnected');
     });
-});
 
-server.listen(PORT, () => {
+    function getRoomUsers(roomName) {
+        return rooms[roomName].map(id => users[id]);
+    }
+});server.listen(PORT, () => {
     console.log('Server ip : http://' + ip.address() + ':' + PORT);
 });

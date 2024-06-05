@@ -9,6 +9,7 @@
 <body>
     <h1>Pokemon Battle</h1>
     <div class="join-battle">
+        <input type="text" id="username" placeholder="Enter your username">
         <input type="text" id="roomName" placeholder="Enter room name">
         <button onclick="createRoom()">Create Room</button>
     </div>
@@ -17,6 +18,11 @@
         <option value="">Select a room</option>
     </select>
     <button onclick="joinRoom()">Join Room</button>
+
+    <div>
+        <h2>Users in Room</h2>
+        <ul id="usersInRoom"></ul>
+    </div>
 
     <div class="pokemon-container">
         <h2>Choose your pokemon</h2>

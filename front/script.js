@@ -1,13 +1,12 @@
 let room = '';
 let socketid = '';
 const roomArea = document.querySelector('#room');
-const messageArea = document.querySelector('#message');
-const userArea = document.querySelector('#user');
-// const chatContainer = document.querySelector('.chat');
+const userArea = document.querySelector('#userName');
 const pokemonContainer = document.querySelector('#choice-pokemon')
 const socket = io('http://localhost:3000');
 let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
+let username = null;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -22,6 +21,16 @@ socket.on('updateRooms', (rooms) => {
         option.textContent = `${room} (${rooms[room].length}/2)`;
         roomsSelect.appendChild(option);
     }
+});
+
+socket.on('updateUsers', (users) => {
+    const usersInRoom = document.getElementById('usersInRoom');
+    usersInRoom.innerHTML = '';
+    users.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = user;
+        usersInRoom.appendChild(li);
+    });
 });
 
 socket.on('roomCreated', (roomName) => {
@@ -40,20 +49,33 @@ socket.on('roomFull', () => {
     alert('Room is full');
 });
 
+function setUsername() {
+    username = document.getElementById('username').value;
+    if (!username) {
+        alert('Please enter a username');
+        return false;
+    }
+    return true;
+}
+
 function createRoom() {
+    if (!setUsername()) return;
+
     const roomName = document.getElementById('roomName').value;
     if (roomName) {
-        socket.emit('createRoom', roomName);
+        socket.emit('createRoom', { roomName, username });
     } else {
         alert('Please enter a room name');
     }
 }
 
 function joinRoom() {
+    if (!setUsername()) return;
+
     const roomsSelect = document.getElementById('rooms');
     const roomName = roomsSelect.value;
     if (roomName) {
-        socket.emit('joinRoom', roomName);
+        socket.emit('joinRoom', { roomName, username });
     } else {
         alert('Please select a room');
     }
