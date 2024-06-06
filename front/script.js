@@ -7,6 +7,7 @@ const socket = io('http://localhost:3000');
 let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
 let username = null;
+let maxUsers = 2;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -31,6 +32,10 @@ socket.on('updateUsers', (users) => {
         li.textContent = user;
         usersInRoom.appendChild(li);
     });
+
+    if (users.length === maxUsers) {
+        displayPokemon();
+    }
 });
 
 socket.on('roomCreated', (roomName) => {

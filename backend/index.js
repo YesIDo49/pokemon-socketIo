@@ -20,6 +20,7 @@ app.get('/', (req, res) => {
 
 const rooms = {};
 const users = {};
+let maxUsers = 2;
 
 io.on('connection', (socket) => {
     console.log('A user connected');
@@ -62,7 +63,7 @@ io.on('connection', (socket) => {
         leaveCurrentRoom(socket);
 
         const room = rooms[roomName];
-        if (room && room.length < 2) {
+        if (room && room.length < maxUsers) {
             users[socket.id] = username;
             room.push(socket.id);
             socket.join(roomName);
