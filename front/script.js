@@ -8,6 +8,7 @@ const pokemonContainer = document.querySelector('#choice-pokemon')
 const socket = io('http://localhost:3000');
 let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
+let maxUsers = 2;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -19,7 +20,7 @@ socket.on('updateRooms', (rooms) => {
     for (let room in rooms) {
         const option = document.createElement('option');
         option.value = room;
-        option.textContent = `${room} (${rooms[room].length}/2)`;
+        option.textContent = `${room} (${rooms[room].length}/${maxUsers})`;
         roomsSelect.appendChild(option);
     }
 });
@@ -34,6 +35,14 @@ socket.on('roomExists', () => {
 
 socket.on('joinedRoom', (roomName) => {
     alert(`Joined room ${roomName}`);
+});
+
+socket.on('enterRoom', (room) => {
+    console.log(room)
+    console.log(room.length)
+    if (room.length === maxUsers) {
+        displayPokemon();
+    }
 });
 
 socket.on('roomFull', () => {
