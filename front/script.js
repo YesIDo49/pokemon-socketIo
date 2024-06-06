@@ -8,6 +8,7 @@ let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
 let username = null;
 let maxUsers = 2;
+let pokemonDisplayed = false;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -33,8 +34,9 @@ socket.on('updateUsers', ({ room, users }) => {
         usersInRoom.appendChild(li);
     });
 
-    if (users.length === maxUsers) {
+    if (users.length === maxUsers && !pokemonDisplayed) {
         displayPokemon();
+        pokemonDisplayed = true;
     }
 });
 
@@ -103,22 +105,20 @@ function joinRoom() {
     }
 }
 
-let send = () => {
-    displayPokemon();
-
-    socket.emit('room', roomArea.value);
-}
-
 async function displayPokemon() {
     await getPokemon();
 
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
-            `<div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
-                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
-                <h4>${pokemon.type} Type</h4>
-                <h2>${pokemon.name}</h2>
-            </div>`
+            `
+            <div class="pokemon-select">
+                <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+                    <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                    <h4>${pokemon.type} Type</h4>
+                    <h2>${pokemon.name}</h2>
+                </div>
+            </div>
+            `
     })
 }
 
@@ -132,7 +132,7 @@ function displayMoves(pokemon) {
     let moves = pokemon.moves;
     moves.forEach((move) => {
         document.getElementById('moves').innerHTML +=
-            `<li class="move-card">
+            `<li class="move-card" onclick="">
                 <h4>${move.name}</h4>
                 <p>type : ${move.type.name}</p>
                 <p>classe : ${move.damage_class.name}</p>
@@ -181,3 +181,7 @@ async function getPokemon() {
         pokemons.push(pokemonData);
     }
 }
+
+socket.on('disconnect', () => {
+    pokemonDisplayed = false;
+});
