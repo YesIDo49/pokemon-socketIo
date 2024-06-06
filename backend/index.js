@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
         if (rooms[roomName]) {
             socket.emit('roomExists');
         } else {
-            users[socket.id] = username;
+            users[socket.id] = { username, userPokemon: null };
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('roomCreated', roomName);
@@ -63,14 +63,14 @@ io.on('connection', (socket) => {
         leaveCurrentRoom(socket);
 
         const room = rooms[roomName];
-        if (room && room.length < maxUsers) {
-            users[socket.id] = username;
+        if (room && room.length < 2) {
+            users[socket.id] = { username, userPokemon: null };
             room.push(socket.id);
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
             io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
         } else if (!room) {
-            users[socket.id] = username;
+            users[socket.id] = { username, userPokemon: null };
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
@@ -79,6 +79,16 @@ io.on('connection', (socket) => {
             socket.emit('roomFull');
         }
         io.emit('updateRooms', rooms);
+    });
+
+    socket.on('updateUser', ({ username, userPokemon }) => {
+        if (users[socket.id]) {
+            users[socket.id].userPokemon = userPokemon;
+            const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
+            if (roomName) {
+                io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
+            }
+        }
     });
 
     socket.on('disconnect', () => {

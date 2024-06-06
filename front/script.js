@@ -29,7 +29,7 @@ socket.on('updateUsers', ({ room, users }) => {
     usersInRoom.innerHTML = `<h2>Users in Room: ${room}</h2>`;
     users.forEach(user => {
         const li = document.createElement('li');
-        li.textContent = user;
+        li.textContent = user.username + (user.userPokemon ? ` - ${user.userPokemon.name}` : '');
         usersInRoom.appendChild(li);
     });
 
@@ -122,23 +122,13 @@ function displayMoves(pokemon) {
     });
 }
 
-// roomArea.addEventListener('change', (e) => {
-//     const newRoom = e.target.value;
-//
-//     if (room) {
-//         socket.emit('leave', room);
-//     }
-//     socket.emit('join', newRoom);
-//     room = newRoom;
-// });
-
-
 async function getPokemon() {
     for (const starter of starters) {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
         const pokemon = await response.json();
 
         let pokemonData = {};
+        pokemonData.id = index + 1;
         pokemonData.name = pokemon.name;
         pokemonData.type = pokemon.types[0].type.name;
         pokemonData.sprite = pokemon.sprites.front_default;
@@ -153,6 +143,10 @@ async function getPokemon() {
                 moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
             case 'blastoise':
                 moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast']
+                break;
+            case 2:
+                moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
+                break;
         }
 
         for (const move of moves) {
@@ -174,4 +168,9 @@ async function getPokemon() {
 }
 
 
+function choosePokemon(pokemonId) {
+    const pokemon = pokemons.find(p => p.id === pokemonId);
+    socket.emit('updateUser', { username, userPokemon: pokemon });
 
+}
+    console.log(pokemon);
