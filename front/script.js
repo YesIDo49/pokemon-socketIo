@@ -97,7 +97,7 @@ async function displayPokemon() {
 
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
-            `<div class="pokemon-card" onclick="choosePokemon(${pokemon})">
+            `<div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
                 <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
                 <h4>${pokemon.type} Type</h4>
                 <h2>${pokemon.name}</h2>
@@ -105,9 +105,10 @@ async function displayPokemon() {
     })
 }
 
-function choosePokemon() {
-    let chosenPokemon = pokemons[0];
-    displayMoves(chosenPokemon);
+function choosePokemon(pokemonId) {
+    const pokemon = pokemons.find(p => p.id === pokemonId);
+    socket.emit('updateUser', { username, userPokemon: pokemon });
+    displayMoves(pokemon);
 }
 
 function displayMoves(pokemon) {
@@ -126,6 +127,7 @@ async function getPokemon() {
     for (const starter of starters) {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
         const pokemon = await response.json();
+        let index = starters.indexOf(starter);
 
         let pokemonData = {};
         pokemonData.id = index + 1;
@@ -138,14 +140,13 @@ async function getPokemon() {
 
         switch (starter) {
             case 'charizard':
-                moves = ['flamethrower', 'air-slash', 'dragon-pulse', 'slash']
-            case 'venusaur':
-                moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
-            case 'blastoise':
-                moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast']
+                moves = ['flamethrower', 'air-slash', 'dragon-pulse', 'slash'];
                 break;
-            case 2:
-                moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
+            case 'venusaur':
+                moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast'];
+                break
+            case 'blastoise':
+                moves = ['hydro-pump', 'flash-cannon', 'aura-sphere', 'facade'];
                 break;
         }
 
@@ -162,15 +163,5 @@ async function getPokemon() {
 
         pokemons.push(pokemonData);
     }
-
-    choosePokemon();
-
 }
 
-
-function choosePokemon(pokemonId) {
-    const pokemon = pokemons.find(p => p.id === pokemonId);
-    socket.emit('updateUser', { username, userPokemon: pokemon });
-
-}
-    console.log(pokemon);
