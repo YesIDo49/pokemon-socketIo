@@ -21,6 +21,7 @@ app.get('/', (req, res) => {
 const rooms = {};
 const users = {};
 let maxUsers = 2;
+let turns = {};
 
 io.on('connection', (socket) => {
     console.log('A user connected');
@@ -87,12 +88,32 @@ io.on('connection', (socket) => {
             const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
             if (roomName) {
                 io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
+
                 const roomUsers = getRoomUsers(roomName);
                 const allSelected = roomUsers.every(user => user.userPokemon !== null);
                 if (allSelected) {
                     io.to(roomName).emit('displaySelectedPokemon', roomUsers);
+                    startGame(roomName);
                 }
             }
+        }
+    });
+
+    socket.on('attack', ({ moveName }) => {
+        const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
+        if (roomName) {
+            const attacker = users[socket.id];
+            const defenderSocketId = rooms[roomName].find(id => id !== socket.id);
+            const defender = users[defenderSocketId];
+            const move = attacker.userPokemon.moves.find(m => m.name === moveName);
+
+            const result = `It was super effective!`;
+
+            io.to(roomName).emit('attackResult', { attacker, defender, move, result });
+
+            const nextTurn = turns[roomName] === socket.id ? defenderSocketId : socket.id;
+            turns[roomName] = nextTurn;
+            io.to(roomName).emit('startTurn', { turn: nextTurn });
         }
     });
 
@@ -105,6 +126,15 @@ io.on('connection', (socket) => {
     function getRoomUsers(roomName) {
         return rooms[roomName].map(id => users[id]);
     }
-});server.listen(PORT, () => {
+
+    function startGame(roomName) {
+        const room = rooms[roomName];
+        const firstTurn = room[Math.floor(Math.random() * room.length)];
+        turns[roomName] = firstTurn;
+        io.to(roomName).emit('startTurn', { turn: firstTurn });
+    }
+});
+
+server.listen(PORT, () => {
     console.log('Server ip : http://' + ip.address() + ':' + PORT);
 });

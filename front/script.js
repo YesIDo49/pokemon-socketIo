@@ -3,12 +3,16 @@ let socketid = '';
 const roomArea = document.querySelector('#room');
 const userArea = document.querySelector('#userName');
 const pokemonContainer = document.querySelector('#choice-pokemon')
+const movesContainer = document.getElementById('moves');
+const battleLogContainer = document.getElementById('battle-log');
+const turnLogContainer = document.getElementById('turn-log');
 const socket = io('http://localhost:3000');
 let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
 let username = null;
 let maxUsers = 2;
 let pokemonDisplayed = false;
+let myTurn = false;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -73,6 +77,24 @@ socket.on('roomFull', () => {
     alert('Room is full');
 });
 
+socket.on('startTurn', (data) => {
+    myTurn = data.turn === socket.id;
+    if (myTurn) {
+        movesContainer.style.visibility = 'visible';
+        displayTurnLog('It is your turn to choose an attack!');
+    } else {
+        movesContainer.style.visibility = 'hidden';
+        displayTurnLog('Waiting for the other player to choose an attack...');
+    }
+});
+
+socket.on('attackResult', (data) => {
+    const { attacker, defender, move, result } = data;
+    displayBattleLog(`${attacker.username}'s ${attacker.userPokemon.name} used ${move.name} on ${defender.username}'s ${defender.userPokemon.name}. ${result}`);
+});
+
+
+
 function setUsername() {
     username = document.getElementById('username').value;
     if (!username) {
@@ -129,15 +151,25 @@ function choosePokemon(pokemonId) {
 }
 
 function displayMoves(pokemon) {
+    movesContainer.innerHTML = '';
     let moves = pokemon.moves;
     moves.forEach((move) => {
-        document.getElementById('moves').innerHTML +=
-            `<li class="move-card" onclick="">
+        movesContainer.innerHTML +=
+            `<li class="move-card" onclick="chooseMove('${move.name}')">
                 <h4>${move.name}</h4>
-                <p>type : ${move.type.name}</p>
-                <p>classe : ${move.damage_class.name}</p>
-            </li>`
+                <p>Type: ${move.type.name}</p>
+                <p>Class: ${move.damage_class.name}</p>
+            </li>`;
     });
+}
+
+function chooseMove(moveName) {
+    if (!myTurn) {
+        alert('It is not your turn yet!');
+        return;
+    }
+    socket.emit('attack', { moveName });
+    myTurn = false;
 }
 
 async function getPokemon() {
@@ -181,6 +213,15 @@ async function getPokemon() {
         pokemons.push(pokemonData);
     }
 }
+
+function displayBattleLog(message) {
+    battleLogContainer.innerHTML = `<p>${message}</p>`;
+}
+
+function displayTurnLog(message) {
+    turnLogContainer.innerHTML = `<p>${message}</p>`;
+}
+
 
 socket.on('disconnect', () => {
     pokemonDisplayed = false;
