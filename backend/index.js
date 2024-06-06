@@ -22,6 +22,7 @@ const rooms = {};
 const users = {};
 let maxUsers = 2;
 let turns = {};
+let winner = false;
 
 io.on('connection', (socket) => {
     console.log('A user connected');
@@ -38,7 +39,8 @@ io.on('connection', (socket) => {
                 if (room.length === 0) {
                     delete rooms[roomName];
                 } else {
-                    io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
+                    io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName), winner : true });
+                    console.log(users)
                 }
                 break;
             }
@@ -118,8 +120,18 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
+        const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
+        if (roomName) {
+            const room = rooms[roomName];
+            if (room.length === 1) {
+                const remainingUser = users[room[0]];
+                io.to(roomName).emit('winner', { winner: remainingUser.username });
+            }
+        }
         leaveCurrentRoom(socket);
         delete users[socket.id];
+        io.emit('updateRooms', rooms);
+
         console.log('A user disconnected');
     });
 
