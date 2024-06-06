@@ -92,7 +92,9 @@ let send = () => {
     socket.emit('room', roomArea.value);
 }
 
-const displayPokemon = () => {
+async function displayPokemon() {
+    await getPokemon();
+
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
             `<div class="pokemon-card" onclick="choosePokemon(${pokemon})">
@@ -103,8 +105,21 @@ const displayPokemon = () => {
     })
 }
 
-function choosePokemon(pokemon) {
-    console.log(pokemon)
+function choosePokemon() {
+    let chosenPokemon = pokemons[0];
+    displayMoves(chosenPokemon);
+}
+
+function displayMoves(pokemon) {
+    let moves = pokemon.moves;
+    moves.forEach((move) => {
+        document.getElementById('moves').innerHTML +=
+            `<li class="move-card">
+                <h4>${move.name}</h4>
+                <p>type : ${move.type.name}</p>
+                <p>classe : ${move.damage_class.name}</p>
+            </li>`
+    });
 }
 
 // roomArea.addEventListener('change', (e) => {
@@ -118,9 +133,8 @@ function choosePokemon(pokemon) {
 // });
 
 
-
-function getPokemon() {
-    starters.forEach(async (starter, index)  => {
+async function getPokemon() {
+    for (const starter of starters) {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
         const pokemon = await response.json();
 
@@ -132,12 +146,12 @@ function getPokemon() {
         let moves = [];
         let pokemonMoves = []
 
-        switch (index) {
-            case 0:
+        switch (starter) {
+            case 'charizard':
                 moves = ['flamethrower', 'air-slash', 'dragon-pulse', 'slash']
-            case 1:
+            case 'venusaur':
                 moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
-            case 2:
+            case 'blastoise':
                 moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast']
         }
 
@@ -153,7 +167,11 @@ function getPokemon() {
         }
 
         pokemons.push(pokemonData);
-    });
+    }
+
+    choosePokemon();
+
 }
 
-getPokemon();
+
+
