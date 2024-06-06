@@ -87,6 +87,11 @@ io.on('connection', (socket) => {
             const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
             if (roomName) {
                 io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
+                const roomUsers = getRoomUsers(roomName);
+                const allSelected = roomUsers.every(user => user.userPokemon !== null);
+                if (allSelected) {
+                    io.to(roomName).emit('displaySelectedPokemon', roomUsers);
+                }
             }
         }
     });

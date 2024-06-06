@@ -46,13 +46,16 @@ body {
   padding: 2rem;
 }
 .pokemon-container .choice-pokemon {
+  width: 100%;
+}
+.pokemon-container .choice-pokemon .pokemon-select {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   padding: 2rem;
   width: 100%;
 }
-.pokemon-container .choice-pokemon .pokemon-card {
+.pokemon-container .choice-pokemon .pokemon-select .pokemon-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,19 +68,19 @@ body {
   cursor: pointer;
   transition: all 0.3s ease-in-out;
 }
-.pokemon-container .choice-pokemon .pokemon-card:hover {
+.pokemon-container .choice-pokemon .pokemon-select .pokemon-card:hover {
   transform: scale(1.1);
 }
-.pokemon-container .choice-pokemon .pokemon-card img {
+.pokemon-container .choice-pokemon .pokemon-select .pokemon-card img {
   width: 100px;
   height: 100px;
 }
-.pokemon-container .choice-pokemon .pokemon-card h2 {
+.pokemon-container .choice-pokemon .pokemon-select .pokemon-card h2 {
   font-size: 1.5rem;
   margin: 1rem 0;
   text-transform: capitalize;
 }
-.pokemon-container .choice-pokemon .pokemon-card h4 {
+.pokemon-container .choice-pokemon .pokemon-select .pokemon-card h4 {
   font-size: 1rem;
   margin: 0.5rem 0;
   text-transform: capitalize;

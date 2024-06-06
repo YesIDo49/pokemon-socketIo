@@ -38,6 +38,23 @@ socket.on('updateUsers', ({ room, users }) => {
     }
 });
 
+socket.on('displaySelectedPokemon', (users) => {
+    pokemonContainer.innerHTML = '<h2>Selected Pokémon</h2>';
+    users.forEach(user => {
+        if (user.userPokemon) {
+            pokemonContainer.innerHTML +=
+                `<div class="pokemon-select">
+                    <div class="pokemon-card">
+                        <img src="${user.userPokemon.sprite}" alt="${user.userPokemon.name} sprite">
+                        <h4>${user.userPokemon.type} Type</h4>
+                        <h2>${user.userPokemon.name}</h2>
+                        <p>(${user.username})</p>
+                    </div>
+                </div>`;
+        }
+    });
+});
+
 socket.on('roomCreated', (roomName) => {
     alert(`Room ${roomName} created successfully`);
 });
@@ -130,13 +147,15 @@ function getPokemon() {
 getPokemon();
 
 const displayPokemon = () => {
-    pokemonContainer.innerHTML = '';
+    pokemonContainer.innerHTML = '<h2>Selected Pokémon</h2>';
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
-            `<div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
-                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
-                <h4>${pokemon.type} Type</h4>
-                <h2>${pokemon.name}</h2>
+            `<div class="pokemon-select">
+                <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+                    <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                    <h4>${pokemon.type} Type</h4>
+                    <h2>${pokemon.name}</h2>
+                </div>
             </div>`;
     });
     console.log(pokemons);
