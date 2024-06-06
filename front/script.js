@@ -29,7 +29,7 @@ socket.on('updateUsers', ({ room, users }) => {
     usersInRoom.innerHTML = `<h2>Users in Room: ${room}</h2>`;
     users.forEach(user => {
         const li = document.createElement('li');
-        li.textContent = user;
+        li.textContent = user.username + (user.userPokemon ? ` - ${user.userPokemon.name}` : '');
         usersInRoom.appendChild(li);
     });
 
@@ -86,45 +86,13 @@ function joinRoom() {
     }
 }
 
-let send = () => {
-    displayPokemon();
-
-    socket.emit('room', roomArea.value);
-}
-
-const displayPokemon = () => {
-    pokemons.forEach((pokemon) => {
-        pokemonContainer.innerHTML +=
-            `<div class="pokemon-card" onclick="choosePokemon(${pokemon})">
-                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
-                <h4>${pokemon.type} Type</h4>
-                <h2>${pokemon.name}</h2>
-            </div>`
-    })
-}
-
-function choosePokemon(pokemon) {
-    console.log(pokemon)
-}
-
-// roomArea.addEventListener('change', (e) => {
-//     const newRoom = e.target.value;
-//
-//     if (room) {
-//         socket.emit('leave', room);
-//     }
-//     socket.emit('join', newRoom);
-//     room = newRoom;
-// });
-
-
-
 function getPokemon() {
     starters.forEach(async (starter, index)  => {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
         const pokemon = await response.json();
 
         let pokemonData = {};
+        pokemonData.id = index + 1;
         pokemonData.name = pokemon.name;
         pokemonData.type = pokemon.types[0].type.name;
         pokemonData.sprite = pokemon.sprites.front_default;
@@ -135,10 +103,13 @@ function getPokemon() {
         switch (index) {
             case 0:
                 moves = ['flamethrower', 'air-slash', 'dragon-pulse', 'slash']
+                break;
             case 1:
-                moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
-            case 2:
                 moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast']
+                break;
+            case 2:
+                moves = ['hydro-pump', 'flash-cannon', 'aurasphere', 'facade']
+                break;
         }
 
         for (const move of moves) {
@@ -157,3 +128,23 @@ function getPokemon() {
 }
 
 getPokemon();
+
+const displayPokemon = () => {
+    pokemonContainer.innerHTML = '';
+    pokemons.forEach((pokemon) => {
+        pokemonContainer.innerHTML +=
+            `<div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                <h4>${pokemon.type} Type</h4>
+                <h2>${pokemon.name}</h2>
+            </div>`;
+    });
+    console.log(pokemons);
+}
+
+function choosePokemon(pokemonId) {
+    const pokemon = pokemons.find(p => p.id === pokemonId);
+    socket.emit('updateUser', { username, userPokemon: pokemon });
+
+    console.log(pokemon);
+}
