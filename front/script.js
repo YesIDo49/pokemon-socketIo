@@ -23,9 +23,9 @@ socket.on('updateRooms', (rooms) => {
     }
 });
 
-socket.on('updateUsers', (users) => {
+socket.on('updateUsers', ({ room, users }) => {
     const usersInRoom = document.getElementById('usersInRoom');
-    usersInRoom.innerHTML = '';
+    usersInRoom.innerHTML = `<h2>Users in Room: ${room}</h2>`;
     users.forEach(user => {
         const li = document.createElement('li');
         li.textContent = user;
@@ -90,12 +90,16 @@ let send = () => {
 const displayPokemon = () => {
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
-            `<div class="pokemon-card">
+            `<div class="pokemon-card" onclick="choosePokemon(${pokemon})">
                 <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
                 <h4>${pokemon.type} Type</h4>
                 <h2>${pokemon.name}</h2>
             </div>`
     })
+}
+
+function choosePokemon(pokemon) {
+    console.log(pokemon)
 }
 
 // roomArea.addEventListener('change', (e) => {

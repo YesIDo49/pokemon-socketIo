@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
                 if (room.length === 0) {
                     delete rooms[roomName];
                 } else {
-                    io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
+                    io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
                 }
                 break;
             }
@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
             socket.join(roomName);
             socket.emit('roomCreated', roomName);
             io.emit('updateRooms', rooms);
-            io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
+            io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
         }
     });
 
@@ -67,13 +67,13 @@ io.on('connection', (socket) => {
             room.push(socket.id);
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
-            io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
+            io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
         } else if (!room) {
             users[socket.id] = username;
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
-            io.to(roomName).emit('updateUsers', getRoomUsers(roomName));
+            io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
         } else {
             socket.emit('roomFull');
         }
