@@ -38,6 +38,23 @@ socket.on('updateUsers', ({ room, users }) => {
     }
 });
 
+socket.on('displaySelectedPokemon', (users) => {
+    pokemonContainer.innerHTML = '<h2>Selected Pokémon</h2>';
+    users.forEach(user => {
+        if (user.userPokemon) {
+            pokemonContainer.innerHTML +=
+                `<div class="pokemon-select">
+                    <div class="pokemon-card">
+                        <img src="${user.userPokemon.sprite}" alt="${user.userPokemon.name} sprite">
+                        <h4>${user.userPokemon.type} Type</h4>
+                        <h2>${user.userPokemon.name}</h2>
+                        <p>(${user.username})</p>
+                    </div>
+                </div>`;
+        }
+    });
+});
+
 socket.on('roomCreated', (roomName) => {
     alert(`Room ${roomName} created successfully`);
 });
@@ -165,3 +182,23 @@ async function getPokemon() {
     }
 }
 
+
+const displayPokemon = () => {
+    pokemonContainer.innerHTML = '';
+    pokemons.forEach((pokemon) => {
+        pokemonContainer.innerHTML +=
+            `<div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                <h4>${pokemon.type} Type</h4>
+                <h2>${pokemon.name}</h2>
+            </div>`;
+    });
+    console.log(pokemons);
+}
+
+function choosePokemon(pokemonId) {
+    const pokemon = pokemons.find(p => p.id === pokemonId);
+    socket.emit('updateUser', { username, userPokemon: pokemon });
+
+    console.log(pokemon);
+}
