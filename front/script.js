@@ -13,6 +13,7 @@ let username = null;
 let maxUsers = 2;
 let pokemonDisplayed = false;
 let myTurn = false;
+let winner = false;
 
 socket.on('connect', () => {
     console.log('Connected');
@@ -29,7 +30,7 @@ socket.on('updateRooms', (rooms) => {
     }
 });
 
-socket.on('updateUsers', ({ room, users }) => {
+socket.on('updateUsers', ({ room, users, winner }) => {
     const usersInRoom = document.getElementById('usersInRoom');
     usersInRoom.innerHTML = `<h2>Users in Room: ${room}</h2>`;
     users.forEach(user => {
@@ -41,6 +42,11 @@ socket.on('updateUsers', ({ room, users }) => {
     if (users.length === maxUsers && !pokemonDisplayed) {
         displayPokemon();
         pokemonDisplayed = true;
+    }
+
+    if (winner) {
+        turnLogContainer.innerHTML = ``;
+        displayBattleLog(`${users[0].username} is the winner!`);
     }
 });
 
