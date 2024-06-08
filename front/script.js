@@ -43,11 +43,6 @@ socket.on('updateUsers', ({ room, users, winner }) => {
         displayPokemon();
         pokemonDisplayed = true;
     }
-
-    if (winner) {
-        turnLogContainer.innerHTML = ``;
-        displayBattleLog(`${users[0].username} is the winner!`);
-    }
 });
 
 socket.on('displaySelectedPokemon', (users) => {
@@ -108,8 +103,8 @@ socket.on('startTurn', (data) => {
 
 socket.on('attackResult', (data) => {
     const { attacker, defender, move, result, newHealth } = data;
+    defender.userPokemon.health = newHealth;
     displayBattleLog(`${attacker.username}'s ${attacker.userPokemon.name} used <b>${move.name}</b> on ${defender.username}'s ${defender.userPokemon.name}. ${result}`);
-    defender.userPokemon.health = newHealth
 });
 
 function setUsername() {

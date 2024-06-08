@@ -155,7 +155,7 @@ io.on('connection', (socket) => {
 
             const power =  Math.round(((42 * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) * move.power) /
                 ((isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense) * 50) + 2) *
-                (isCritical ? 1.5 : 1) * rollDamage * (isStab ? 1.5 : 1) * (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1)));
+                (isCritical ? 1.5 : 1) * rollDamage * (isStab ? 1.5 : 1) * (isSuperEffective ? 1.5 : (isNotVeryEffective ? 0.5 : 1)));
             defender.userPokemon.health -= power;
 
             let newHealth = defender.userPokemon.health;
@@ -165,9 +165,9 @@ io.on('connection', (socket) => {
             io.to(roomName).emit('attackResult', { attacker, defender, move, result, newHealth });
 
             if (newHealth <= 0) {
+                defender.userPokemon.health = 0;
                 io.to(roomName).emit('winner', { winner: attacker.username });
                 io.to(roomName).emit('displayBattleLog', `${attacker.username} is the winner!`);
-                return;
             }
 
             const nextTurn = turns[roomName] === socket.id ? defenderSocketId : socket.id;
