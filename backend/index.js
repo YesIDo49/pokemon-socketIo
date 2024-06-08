@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
         if (rooms[roomName]) {
             socket.emit('roomExists');
         } else {
-            users[socket.id] = { username, userPokemon: null };
+            users[socket.id] = { socketId: socket.id, username, userPokemon: null };
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('roomCreated', roomName);
@@ -64,14 +64,14 @@ io.on('connection', (socket) => {
         leaveCurrentRoom(socket);
 
         const room = rooms[roomName];
-        if (room && room.length < 2) {
-            users[socket.id] = { username, userPokemon: null };
+        if (room && room.length < maxUsers) {
+            users[socket.id] = { socketId: socket.id, username, userPokemon: null };
             room.push(socket.id);
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
             io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
         } else if (!room) {
-            users[socket.id] = { username, userPokemon: null };
+            users[socket.id] = { socketId: socket.id, username, userPokemon: null };
             rooms[roomName] = [socket.id];
             socket.join(roomName);
             socket.emit('joinedRoom', roomName);
@@ -107,13 +107,18 @@ io.on('connection', (socket) => {
             const defender = users[defenderSocketId];
             const move = attacker.userPokemon.moves.find(m => m.name === moveName);
 
-            const result = `It was super effective!`;
+            const power = 1
+            defender.userPokemon.health -= power;
+            let newHealth = defender.userPokemon.health;
 
-            io.to(roomName).emit('attackResult', { attacker, defender, move, result });
+            const result = `It was super effective! ${defender.userPokemon.name} took ${power} damage. ${defender.userPokemon.name}'s health is now ${defender.userPokemon.health}!`;
+
+            io.to(roomName).emit('attackResult', { attacker, defender, move, result, newHealth });
 
             const nextTurn = turns[roomName] === socket.id ? defenderSocketId : socket.id;
             turns[roomName] = nextTurn;
             io.to(roomName).emit('startTurn', { turn: nextTurn });
+            io.to(roomName).emit('displaySelectedPokemon', [attacker, defender]);
         }
     });
 

@@ -24,7 +24,7 @@ socket.on('updateRooms', (rooms) => {
     for (let room in rooms) {
         const option = document.createElement('option');
         option.value = room;
-        option.textContent = `${room} (${rooms[room].length}/2)`;
+        option.textContent = `${room} (${rooms[room].length}/${maxUsers})`;
         roomsSelect.appendChild(option);
     }
 });
@@ -45,8 +45,11 @@ socket.on('updateUsers', ({ room, users }) => {
 });
 
 socket.on('displaySelectedPokemon', (users) => {
+    const currentUser = users.find(user => user.socketId === socket.id);
+    const sortedUsers = [currentUser, ...users.filter(user => user.socketId !== socket.id)];
+
     pokemonContainer.innerHTML = '<h2>Selected Pokémon</h2>';
-    users.forEach(user => {
+    sortedUsers.forEach(user => {
         if (user.userPokemon) {
             pokemonContainer.innerHTML +=
                 `<div class="pokemon-select">
@@ -55,6 +58,7 @@ socket.on('displaySelectedPokemon', (users) => {
                         <h4>${user.userPokemon.type} Type</h4>
                         <h2>${user.userPokemon.name}</h2>
                         <p>(${user.username})</p>
+                        <p>(${user.userPokemon.health})HP</p>
                     </div>
                 </div>`;
         }
@@ -89,11 +93,10 @@ socket.on('startTurn', (data) => {
 });
 
 socket.on('attackResult', (data) => {
-    const { attacker, defender, move, result } = data;
+    const { attacker, defender, move, result, newHealth } = data;
     displayBattleLog(`${attacker.username}'s ${attacker.userPokemon.name} used ${move.name} on ${defender.username}'s ${defender.userPokemon.name}. ${result}`);
+    defender.userPokemon.health = newHealth
 });
-
-
 
 function setUsername() {
     username = document.getElementById('username').value;
@@ -183,6 +186,7 @@ async function getPokemon() {
         pokemonData.name = pokemon.name;
         pokemonData.type = pokemon.types[0].type.name;
         pokemonData.sprite = pokemon.sprites.front_default;
+        pokemonData.health = pokemon.stats[0].base_stat;
 
         let moves = [];
         let pokemonMoves = []
