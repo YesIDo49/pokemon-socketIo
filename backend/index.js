@@ -89,7 +89,7 @@ io.on('connection', (socket) => {
             users[socket.id].userPokemon = userPokemon;
             const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
             if (roomName) {
-                io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName) });
+                io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName), winner: false });
 
                 const roomUsers = getRoomUsers(roomName);
                 const allSelected = roomUsers.every(user => user.userPokemon !== null);
@@ -109,13 +109,19 @@ io.on('connection', (socket) => {
             const defender = users[defenderSocketId];
             const move = attacker.userPokemon.moves.find(m => m.name === moveName);
 
-            const power = 1
+            const power = 70;
             defender.userPokemon.health -= power;
             let newHealth = defender.userPokemon.health;
 
             const result = `It was super effective! ${defender.userPokemon.name} took ${power} damage. ${defender.userPokemon.name}'s health is now ${defender.userPokemon.health}!`;
 
             io.to(roomName).emit('attackResult', { attacker, defender, move, result, newHealth });
+
+            if (newHealth <= 0) {
+                io.to(roomName).emit('winner', { winner: attacker.username });
+                io.to(roomName).emit('displayBattleLog', `${attacker.username} is the winner!`);
+                return;
+            }
 
             const nextTurn = turns[roomName] === socket.id ? defenderSocketId : socket.id;
             turns[roomName] = nextTurn;

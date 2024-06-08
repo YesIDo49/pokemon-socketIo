@@ -51,6 +51,7 @@ socket.on('updateUsers', ({ room, users, winner }) => {
 });
 
 socket.on('displaySelectedPokemon', (users) => {
+    document.querySelector('.join-battle').classList.add('is-hidden');
     const currentUser = users.find(user => user.socketId === socket.id);
     const sortedUsers = [currentUser, ...users.filter(user => user.socketId !== socket.id)];
 
@@ -69,6 +70,11 @@ socket.on('displaySelectedPokemon', (users) => {
                 </div>`;
         }
     });
+});
+
+socket.on('winner', (data) => {
+    alert(`${data.winner} wins!`);
+    displayBattleLog(`${data.winner} is the winner!`);
 });
 
 socket.on('roomCreated', (roomName) => {
