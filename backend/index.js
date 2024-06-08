@@ -146,31 +146,19 @@ io.on('connection', (socket) => {
             let isSuperEffective = effectivenessResult === 'super';
             let isNotVeryEffective = effectivenessResult === 'notVery';
 
-
             if (move.damage_class.name === 'special') {
                 isSpecial = true;
             }
             if (move.type.name === attacker.userPokemon.type) {
                 isStab = true;
             }
-            // const power = 70;
-            // const power2 = ((42 * move.power * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) / 50) /
-            //     (isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense) + 2) * (isCritical ? 2 : 1) * rollDamage / 100 * (isStab ? 1.5 : 1) *
-            //     (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1));
 
             const power =  Math.round(((42 * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) * move.power) /
                 ((isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense) * 50) + 2) *
                 (isCritical ? 1.5 : 1) * rollDamage * (isStab ? 1.5 : 1) * (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1)));
-
-            // const power = Math.round((((((((42) + 2) * move.power * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) / 50) /
-            //         (isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense))) + 2) * (isCritical ? 2 : 1) * rollDamage / 100) *
-            //     (isStab ? 1.5 : 1) * (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1)));
-
             defender.userPokemon.health -= power;
 
-
             let newHealth = defender.userPokemon.health;
-
 
             const result = `${isSuperEffective ? "It was super effective !" : (isNotVeryEffective ? "It was not very effective..." : "")} ${isCritical ? "It's a critical hit !" : ""} <br/> ${defender.userPokemon.name} took ${power} damage.<br/> ${defender.userPokemon.name}'s health is now at ${defender.userPokemon.health}!`;
 
