@@ -3,6 +3,8 @@ let socketid = '';
 const roomArea = document.querySelector('#room');
 const userArea = document.querySelector('#userName');
 const pokemonContainer = document.querySelector('#choice-pokemon')
+const battleContainer = document.querySelector('#pokemon-battle')
+const pokemonScreen = document.querySelector('.pokemon-screen')
 const movesContainer = document.getElementById('moves');
 const battleLogContainer = document.getElementById('battle-log');
 const turnLogContainer = document.getElementById('turn-log');
@@ -51,21 +53,25 @@ socket.on('updateUsers', ({ room, users, winner }) => {
 });
 
 socket.on('displaySelectedPokemon', (users) => {
-    document.querySelector('.join-battle').classList.add('is-hidden');
+    document.querySelector('.pokemon-container').classList.add('battle');
     const currentUser = users.find(user => user.socketId === socket.id);
     const sortedUsers = [currentUser, ...users.filter(user => user.socketId !== socket.id)];
 
-    pokemonContainer.innerHTML = '<h2>Selected Pokémon</h2>';
+    pokemonContainer.classList.add('is-hidden');
+    battleContainer.classList.remove('is-hidden');
+
+    pokemonScreen.innerHTML = '';
+
     sortedUsers.forEach(user => {
         if (user.userPokemon) {
-            pokemonContainer.innerHTML +=
-                `<div class="pokemon-select">
-                    <div class="pokemon-card">
+            pokemonScreen.innerHTML +=
+                `<div class="pokemon-card is-selected">
+                    <div class="pokemon-image">
                         <img src="${user.userPokemon.sprite}" alt="${user.userPokemon.name} sprite">
-                        <h4>${user.userPokemon.type} Type</h4>
+                    </div>
+                    <div class="pokemon-info">
                         <h2>${user.userPokemon.name}</h2>
-                        <p>(${user.username})</p>
-                        <p>(${user.userPokemon.health})HP</p>
+                        <p>${user.userPokemon.health} HP</p>
                     </div>
                 </div>`;
         }
@@ -73,6 +79,7 @@ socket.on('displaySelectedPokemon', (users) => {
 });
 
 socket.on('winner', (data) => {
+    turnLogContainer.innerHTML = ``;
     alert(`${data.winner} wins!`);
     displayBattleLog(`${data.winner} is the winner!`);
 });
@@ -143,17 +150,18 @@ function joinRoom() {
 }
 
 async function displayPokemon() {
+    document.querySelector('.join-battle').classList.add('is-hidden');
+    document.querySelector('.pokemon-container').classList.remove('is-hidden');
+
     await getPokemon();
 
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
             `
-            <div class="pokemon-select">
-                <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
-                    <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
-                    <h4>${pokemon.type} Type</h4>
-                    <h2>${pokemon.name}</h2>
-                </div>
+            <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                <h4>${pokemon.type} Type</h4>
+                <h2>${pokemon.name}</h2>
             </div>
             `
     })
