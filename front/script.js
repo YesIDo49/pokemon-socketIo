@@ -198,7 +198,11 @@ async function getPokemon() {
         pokemonData.name = pokemon.name;
         pokemonData.type = pokemon.types[0].type.name;
         pokemonData.sprite = pokemon.sprites.front_default;
-        pokemonData.health = pokemon.stats[0].base_stat;
+        pokemonData.health = pokemon.stats[0].base_stat * 5;
+        pokemonData.attack = pokemon.stats[1].base_stat;
+        pokemonData.defense = pokemon.stats[2].base_stat;
+        pokemonData.specialAttack = pokemon.stats[3].base_stat;
+        pokemonData.specialDefense = pokemon.stats[4].base_stat;
 
         let moves = [];
         let pokemonMoves = []

@@ -108,12 +108,71 @@ io.on('connection', (socket) => {
             const defenderSocketId = rooms[roomName].find(id => id !== socket.id);
             const defender = users[defenderSocketId];
             const move = attacker.userPokemon.moves.find(m => m.name === moveName);
+            let isStab = false;
+            let isSpecial = false;
+            let isCritical = (Math.floor(Math.random() * 10)) === 0;
+            let rollDamage = 0.85 + (Math.random() * (1.15 - 0.85));
 
-            const power = 70;
+            const effectiveness = {
+                fire: {
+                    grass: 'super',
+                    water: 'notVery',
+                    fire: 'notVery'
+                },
+                water: {
+                    fire: 'super',
+                    grass: 'notVery',
+                    water: 'notVery'
+                },
+                grass: {
+                    water: 'super',
+                    fire: 'notVery',
+                    grass: 'notVery'
+                },
+                flying: {
+                    grass: 'super'
+                }
+            };
+
+            function determineEffectiveness(moveType, defenderType) {
+                if (effectiveness[moveType] && effectiveness[moveType][defenderType]) {
+                    return effectiveness[moveType][defenderType];
+                }
+                return 'normal'; // Par défaut, l'efficacité est normale
+            }
+
+            let effectivenessResult = determineEffectiveness(move.type.name, defender.userPokemon.type);
+
+            let isSuperEffective = effectivenessResult === 'super';
+            let isNotVeryEffective = effectivenessResult === 'notVery';
+
+
+            if (move.damage_class.name === 'special') {
+                isSpecial = true;
+            }
+            if (move.type.name === attacker.userPokemon.type) {
+                isStab = true;
+            }
+            // const power = 70;
+            // const power2 = ((42 * move.power * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) / 50) /
+            //     (isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense) + 2) * (isCritical ? 2 : 1) * rollDamage / 100 * (isStab ? 1.5 : 1) *
+            //     (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1));
+
+            const power =  Math.round(((42 * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) * move.power) /
+                ((isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense) * 50) + 2) *
+                (isCritical ? 1.5 : 1) * rollDamage * (isStab ? 1.5 : 1) * (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1)));
+
+            // const power = Math.round((((((((42) + 2) * move.power * (isSpecial ? attacker.userPokemon.specialAttack : attacker.userPokemon.attack) / 50) /
+            //         (isSpecial ? defender.userPokemon.specialDefense : defender.userPokemon.defense))) + 2) * (isCritical ? 2 : 1) * rollDamage / 100) *
+            //     (isStab ? 1.5 : 1) * (isSuperEffective ? 2 : (isNotVeryEffective ? 0.5 : 1)));
+
             defender.userPokemon.health -= power;
+
+
             let newHealth = defender.userPokemon.health;
 
-            const result = `It was super effective! ${defender.userPokemon.name} took ${power} damage. ${defender.userPokemon.name}'s health is now ${defender.userPokemon.health}!`;
+
+            const result = `${isSuperEffective ? "It was super effective !" : (isNotVeryEffective ? "It was not very effective..." : "")} ${isCritical ? "It's a critical hit !" : ""} <br/> ${defender.userPokemon.name} took ${power} damage.<br/> ${defender.userPokemon.name}'s health is now at ${defender.userPokemon.health}!`;
 
             io.to(roomName).emit('attackResult', { attacker, defender, move, result, newHealth });
 
