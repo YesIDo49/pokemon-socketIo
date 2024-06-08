@@ -86,4 +86,8 @@ body {
   text-transform: capitalize;
 }
 
+.is-hidden {
+  display: none;
+}
+
 /*# sourceMappingURL=style.css.map */

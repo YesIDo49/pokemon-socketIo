@@ -160,7 +160,7 @@ io.on('connection', (socket) => {
 
             let newHealth = defender.userPokemon.health;
 
-            const result = `${isSuperEffective ? "It was super effective !" : (isNotVeryEffective ? "It was not very effective..." : "")} ${isCritical ? "It's a critical hit !" : ""} <br/> ${defender.userPokemon.name} took ${power} damage.<br/> ${defender.userPokemon.name}'s health is now at ${defender.userPokemon.health}!`;
+            const result = `${isSuperEffective ? "It was super effective !" : (isNotVeryEffective ? "It was not very effective..." : "")} <b>${isCritical ? "It's a critical hit !" : ""}</b> <br/> ${defender.userPokemon.name} took <b>${power} damage.</b> <br/> ${defender.userPokemon.name}'s health is now at <b>${defender.userPokemon.health}</b> !`;
 
             io.to(roomName).emit('attackResult', { attacker, defender, move, result, newHealth });
 
