@@ -2,9 +2,9 @@ let room = '';
 let socketid = '';
 const roomArea = document.querySelector('#room');
 const userArea = document.querySelector('#userName');
-const pokemonContainer = document.querySelector('#choice-pokemon')
-const battleContainer = document.querySelector('#pokemon-battle')
-const pokemonScreen = document.querySelector('.pokemon-screen')
+const pokemonContainer = document.querySelector('#choice-pokemon');
+const battleContainer = document.querySelector('#pokemon-battle');
+const pokemonScreen = document.querySelector('.pokemon-screen');
 const movesContainer = document.getElementById('moves');
 const battleLogContainer = document.getElementById('battle-log');
 const turnLogContainer = document.getElementById('turn-log');
@@ -12,15 +12,17 @@ const socket = io('http://localhost:3000');
 let starters = ['charizard', 'venusaur', 'blastoise'];
 let pokemons = [];
 let username = null;
-let maxUsers = 2;
+const maxUsers = 2;
 let pokemonDisplayed = false;
 let myTurn = false;
 let winner = false;
 
+// Connection socket
 socket.on('connect', () => {
     console.log('Connected');
 });
 
+// Update rooms available
 socket.on('updateRooms', (rooms) => {
     const roomsSelect = document.getElementById('rooms');
     roomsSelect.innerHTML = '<option value="">Select a room</option>';
@@ -32,6 +34,7 @@ socket.on('updateRooms', (rooms) => {
     }
 });
 
+// Update users in room
 socket.on('updateUsers', ({ room, users, winner }) => {
     const usersInRoom = document.getElementById('usersInRoom');
     usersInRoom.innerHTML = `<h2>Users in Room: ${room}</h2>`;
@@ -47,6 +50,7 @@ socket.on('updateUsers', ({ room, users, winner }) => {
     }
 });
 
+// Show selected Pokémon
 socket.on('displaySelectedPokemon', (users) => {
     document.querySelector('.pokemon-container').classList.add('battle');
     const currentUser = users.find(user => user.socketId === socket.id);
@@ -73,6 +77,7 @@ socket.on('displaySelectedPokemon', (users) => {
     });
 });
 
+// Show winner
 socket.on('winner', (data) => {
     winner = true;
     turnLogContainer.innerHTML = ``;
@@ -81,6 +86,7 @@ socket.on('winner', (data) => {
     document.getElementById('restartButton').classList.remove('is-hidden');
 });
 
+// Restart game
 function restartGame() {
     pokemonDisplayed = true;
     winner = false;
@@ -100,6 +106,8 @@ socket.on('gameRestarted', () => {
     pokemonDisplayed = false;
     pokemons = [];
 });
+
+// All alerts notifications
 socket.on('roomCreated', (roomName) => {
     alert(`Room ${roomName} created successfully`);
 });
@@ -116,6 +124,7 @@ socket.on('roomFull', () => {
     alert('Room is full');
 });
 
+// Start turn
 socket.on('startTurn', (data) => {
     myTurn = data.turn === socket.id;
     if (myTurn && !winner) {
@@ -127,12 +136,14 @@ socket.on('startTurn', (data) => {
     }
 });
 
+// Damage of the attack
 socket.on('attackResult', (data) => {
     const { attacker, defender, move, result, newHealth } = data;
     defender.userPokemon.health = newHealth;
     displayBattleLog(`${attacker.username}'s ${attacker.userPokemon.name} used <b>${move.name}</b> on ${defender.username}'s ${defender.userPokemon.name}. ${result}`);
 });
 
+// Add name to user
 function setUsername() {
     username = document.getElementById('username').value;
     if (!username) {
@@ -142,6 +153,7 @@ function setUsername() {
     return true;
 }
 
+// Create room
 function createRoom() {
     if (!setUsername()) return;
 
@@ -153,6 +165,7 @@ function createRoom() {
     }
 }
 
+// Join room
 function joinRoom() {
     if (!setUsername()) return;
 
@@ -165,6 +178,7 @@ function joinRoom() {
     }
 }
 
+// Show all pokemons
 async function displayPokemon() {
     pokemonContainer.innerHTML = '<img class="background" src="assets/starter.jpeg" alt="">';
     document.querySelector('.join-battle').classList.add('is-hidden');
@@ -174,28 +188,27 @@ async function displayPokemon() {
 
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
-            `
-            <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+            `<div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
                 <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
                 <div class="pokemon-title">
                     <img src="assets/type_pokemon_${pokemon.type}.png" alt="${pokemon.type} icon">
                     <h2>${pokemon.name}</h2>
                 </div>
-            </div>
-            `
-    })
+            </div>`;
+    });
 }
 
+// Choose pokemon
 function choosePokemon(pokemonId) {
     const pokemon = pokemons.find(p => p.id === pokemonId);
     socket.emit('updateUser', { username, userPokemon: pokemon });
     displayMoves(pokemon);
 }
 
+// Show pokemon moves
 function displayMoves(pokemon) {
     movesContainer.innerHTML = '';
-    let moves = pokemon.moves;
-    moves.forEach((move) => {
+    pokemon.moves.forEach((move) => {
         movesContainer.innerHTML +=
             `<li class="move-card" onclick="chooseMove('${move.name}')">
                 <h4>${move.name}</h4>
@@ -207,6 +220,7 @@ function displayMoves(pokemon) {
     });
 }
 
+// Choose move
 function chooseMove(moveName) {
     if (!myTurn) {
         alert('It is not your turn yet!');
@@ -216,44 +230,37 @@ function chooseMove(moveName) {
     myTurn = false;
 }
 
+// Get all 3 pokemons from PokeAPI
 async function getPokemon() {
     for (const starter of starters) {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${starter}`);
         const pokemon = await response.json();
         let index = starters.indexOf(starter);
 
-        let pokemonData = {};
-        pokemonData.id = index + 1;
-        pokemonData.name = pokemon.name;
-        pokemonData.type = pokemon.types[0].type.name;
-        pokemonData.sprite = pokemon.sprites.front_default;
-        pokemonData.health = pokemon.stats[0].base_stat * 5;
-        pokemonData.attack = pokemon.stats[1].base_stat;
-        pokemonData.defense = pokemon.stats[2].base_stat;
-        pokemonData.specialAttack = pokemon.stats[3].base_stat;
-        pokemonData.specialDefense = pokemon.stats[4].base_stat;
+        let pokemonData = {
+            id: index + 1,
+            name: pokemon.name,
+            type: pokemon.types[0].type.name,
+            sprite: pokemon.sprites.front_default,
+            health: pokemon.stats[0].base_stat * 5,
+            attack: pokemon.stats[1].base_stat,
+            defense: pokemon.stats[2].base_stat,
+            specialAttack: pokemon.stats[3].base_stat,
+            specialDefense: pokemon.stats[4].base_stat,
+            moves: []
+        };
 
-        let moves = [];
-        let pokemonMoves = []
+        const moveNames = {
+            charizard: ['flamethrower', 'air-slash', 'dragon-pulse', 'slash'],
+            venusaur: ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast'],
+            blastoise: ['hydro-pump', 'flash-cannon', 'aura-sphere', 'facade']
+        }[starter];
 
-        switch (starter) {
-            case 'charizard':
-                moves = ['flamethrower', 'air-slash', 'dragon-pulse', 'slash'];
-                break;
-            case 'venusaur':
-                moves = ['energy-ball', 'sludge-bomb', 'body-slam', 'tera-blast'];
-                break
-            case 'blastoise':
-                moves = ['hydro-pump', 'flash-cannon', 'aura-sphere', 'facade'];
-                break;
-        }
-
-        for (const move of moves) {
+        for (const move of moveNames) {
             try {
-                const response = await fetch(`https://pokeapi.co/api/v2/move/${move}`)
-                const pokemonMove = await response.json()
-                pokemonMoves.push(pokemonMove)
-                pokemonData.moves = pokemonMoves;
+                const moveResponse = await fetch(`https://pokeapi.co/api/v2/move/${move}`);
+                const pokemonMove = await moveResponse.json();
+                pokemonData.moves.push(pokemonMove);
             } catch (error) {
                 console.error('Error fetching move:', move, error);
             }
@@ -263,14 +270,15 @@ async function getPokemon() {
     }
 }
 
+// Show battle messages
 function displayBattleLog(message) {
     battleLogContainer.innerHTML = `<p>${message}</p>`;
 }
 
+// Show turn messages
 function displayTurnLog(message) {
     turnLogContainer.innerHTML = `<p>${message}</p>`;
 }
-
 
 socket.on('disconnect', () => {
     pokemonDisplayed = false;
