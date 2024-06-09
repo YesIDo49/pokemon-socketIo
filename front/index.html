@@ -7,30 +7,55 @@
     <title>Pokemon Battle</title>
 </head>
 <body>
-    <h1>Pokemon Battle</h1>
+<section class="screen">
+
+    <header>
+        <h1>Pokemon Battle</h1>
+        <div>
+            <ul id="usersInRoom"></ul>
+        </div>
+    </header>
     <div class="join-battle">
-        <input type="text" id="username" placeholder="Enter your username">
-        <input type="text" id="roomName" placeholder="Enter room name">
-        <button onclick="createRoom()">Create Room</button>
-    </div>
-    <label for="rooms">Available Rooms</label>
-    <select id="rooms">
-        <option value="">Select a room</option>
-    </select>
-    <button onclick="joinRoom()">Join Room</button>
+        <div class="group">
+            <input type="text" id="username" placeholder="Enter your username">
+        </div>
+        <div class="group">
+            <input type="text" id="roomName" placeholder="Enter room name">
+            <button onclick="createRoom()">Create Room</button>
+        </div>
+        OR
+        <div class="group">
+            <label for="rooms">Available Rooms</label>
+            <select id="rooms">
+                <option value="">Select a room</option>
+            </select>
+            <button onclick="joinRoom()">Join Room</button>
+        </div>
 
-    <div>
-        <ul id="usersInRoom"></ul>
     </div>
 
-    <div class="pokemon-container">
+<!--    <div class="pokemon-container">-->
+<!--        <div id="choice-pokemon" class="choice-pokemon"></div>-->
+<!--        <div id="turn-log"></div>-->
+<!--        <div id="battle-log"></div>-->
+<!--        <button id="restartButton" class="is-hidden" onclick="restartGame()">Restart Game</button>-->
+<!--        <ul id="moves"></ul>-->
+    <div class="pokemon-container is-hidden">
         <div id="choice-pokemon" class="choice-pokemon"></div>
-        <div id="turn-log"></div>
-        <div id="battle-log"></div>
-        <button id="restartButton" class="is-hidden" onclick="restartGame()">Restart Game</button>
-        <ul id="moves"></ul>
+        <div id="pokemon-battle" class="pokemon-battle is-hidden">
+            <img class="background" src="assets/background.webp" alt="">
+            <div class="pokemon-screen"></div>
+            <div class="pokemon-logs">
+                <div>
+                    <div id="turn-log"></div>
+                    <div id="battle-log"></div>
+                    <button id="restartButton" class="is-hidden" onclick="restartGame()">Restart Game</button>
+                </div>
+                <ul id="moves"></ul>
+            </div>
+        </div>
     </div>
-
+</section>
 </body>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
 <script src="./script.js"></script>

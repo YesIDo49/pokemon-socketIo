@@ -3,6 +3,8 @@ let socketid = '';
 const roomArea = document.querySelector('#room');
 const userArea = document.querySelector('#userName');
 const pokemonContainer = document.querySelector('#choice-pokemon')
+const battleContainer = document.querySelector('#pokemon-battle')
+const pokemonScreen = document.querySelector('.pokemon-screen')
 const movesContainer = document.getElementById('moves');
 const battleLogContainer = document.getElementById('battle-log');
 const turnLogContainer = document.getElementById('turn-log');
@@ -46,21 +48,25 @@ socket.on('updateUsers', ({ room, users, winner }) => {
 });
 
 socket.on('displaySelectedPokemon', (users) => {
-    document.querySelector('.join-battle').classList.add('is-hidden');
+    document.querySelector('.pokemon-container').classList.add('battle');
     const currentUser = users.find(user => user.socketId === socket.id);
     const sortedUsers = [currentUser, ...users.filter(user => user.socketId !== socket.id)];
 
-    pokemonContainer.innerHTML = '<h2>Selected Pokémon</h2>';
+    pokemonContainer.classList.add('is-hidden');
+    battleContainer.classList.remove('is-hidden');
+
+    pokemonScreen.innerHTML = '';
+
     sortedUsers.forEach(user => {
         if (user.userPokemon) {
-            pokemonContainer.innerHTML +=
-                `<div class="pokemon-select">
-                    <div class="pokemon-card">
+            pokemonScreen.innerHTML +=
+                `<div class="pokemon-card is-selected">
+                    <div class="pokemon-image">
                         <img src="${user.userPokemon.sprite}" alt="${user.userPokemon.name} sprite">
-                        <h4>${user.userPokemon.type} Type</h4>
+                    </div>
+                    <div class="pokemon-info">
                         <h2>${user.userPokemon.name}</h2>
-                        <p>(${user.username})</p>
-                        <p>(${user.userPokemon.health})HP</p>
+                        <p>${user.userPokemon.health} HP</p>
                     </div>
                 </div>`;
         }
@@ -87,6 +93,8 @@ socket.on('gameRestarted', () => {
     battleLogContainer.innerHTML = '';
     turnLogContainer.innerHTML = '';
     pokemonContainer.innerHTML = '';
+    pokemonContainer.classList.remove('is-hidden');
+    battleContainer.classList.add('is-hidden');
     movesContainer.style.visibility = 'hidden';
     document.getElementById('restartButton').classList.add('is-hidden');
     pokemonDisplayed = false;
@@ -158,17 +166,19 @@ function joinRoom() {
 }
 
 async function displayPokemon() {
-    pokemonContainer.innerHTML = '';
+    pokemonContainer.innerHTML = '<img class="background" src="assets/starter.jpeg" alt="">';
+    document.querySelector('.join-battle').classList.add('is-hidden');
+    document.querySelector('.pokemon-container').classList.remove('is-hidden');
 
     await getPokemon();
 
     pokemons.forEach((pokemon) => {
         pokemonContainer.innerHTML +=
             `
-            <div class="pokemon-select">
-                <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
-                    <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
-                    <h4>${pokemon.type} Type</h4>
+            <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
+                <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
+                <div class="pokemon-title">
+                    <img src="assets/type_pokemon_${pokemon.type}.png" alt="${pokemon.type} icon">
                     <h2>${pokemon.name}</h2>
                 </div>
             </div>
@@ -189,8 +199,10 @@ function displayMoves(pokemon) {
         movesContainer.innerHTML +=
             `<li class="move-card" onclick="chooseMove('${move.name}')">
                 <h4>${move.name}</h4>
-                <p>Type: ${move.type.name}</p>
-                <p>Class: ${move.damage_class.name}</p>
+                <div class="move-type">
+                    <img src="assets/type_pokemon_${move.type.name}.png" alt="${move.type.name} icon">
+                    <img src="assets/move-${move.damage_class.name}.png" alt="${move.damage_class.name} icon">
+                </div>
             </li>`;
     });
 }
