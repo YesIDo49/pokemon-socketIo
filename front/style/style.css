@@ -88,11 +88,11 @@
   left: 0;
   width: 100%;
   height: 100%;
+  object-fit: contain;
 }
 
 .choice-pokemon {
   position: relative;
-  width: 80vw;
   height: 50vh;
   display: flex;
 }
@@ -100,7 +100,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   width: 33.3333333333%;
   height: 200px;
   transition: all 0.3s ease-in-out;
@@ -109,11 +109,26 @@
   cursor: pointer;
   transform: scale(1.1);
 }
+.choice-pokemon .pokemon-card .pokemon-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+  text-transform: capitalize;
+  background-color: white;
+  border: 1px solid red;
+  border-radius: 5px;
+  padding: 0.5rem;
+}
+.choice-pokemon .pokemon-card .pokemon-title img {
+  max-width: 50px;
+}
 
 .pokemon-screen {
   position: relative;
-  width: 100%;
+  width: 60%;
   height: 100%;
+  margin: auto;
 }
 
 .pokemon-screen .is-selected {
@@ -130,21 +145,32 @@
   margin: 5% 5px;
   margin-top: auto;
   border: 1px solid darkgrey;
-  background: lightgrey;
+  background: white;
   height: fit-content;
   width: fit-content;
   padding: 8px 16px;
+  text-transform: capitalize;
+}
+.pokemon-screen .is-selected .pokemon-info p {
+  color: #52b788;
 }
 .pokemon-screen .is-selected img {
-  width: 100%;
+  width: 20%;
   height: 100%;
   object-fit: contain;
+  position: absolute;
 }
 .pokemon-screen .is-selected:first-child {
   flex-direction: row-reverse;
 }
+.pokemon-screen .is-selected:first-child img {
+  right: 26%;
+  top: -2%;
+}
 .pokemon-screen .is-selected:last-child img {
   transform: scaleX(-1);
+  right: 55%;
+  top: 28%;
 }
 
 .pokemon-logs {
@@ -174,6 +200,19 @@
   border-radius: 30px;
   padding: 8px 16px;
   transition: background-color 0.3s ease-in-out;
+  text-transform: capitalize;
+  text-align: center;
+  color: white;
+}
+.pokemon-logs #moves li .move-type {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding-top: 10px;
+}
+.pokemon-logs #moves li .move-type img {
+  width: 50px;
+  object-fit: contain;
 }
 .pokemon-logs #moves li:nth-child(1) {
   border: 3px solid #650c0c;

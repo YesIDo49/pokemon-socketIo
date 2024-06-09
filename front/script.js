@@ -160,8 +160,10 @@ async function displayPokemon() {
             `
             <div class="pokemon-card" onclick="choosePokemon(${pokemon.id})">
                 <img src="${pokemon.sprite}" alt="${pokemon.name} sprite">
-                <h4>${pokemon.type} Type</h4>
-                <h2>${pokemon.name}</h2>
+                <div class="pokemon-title">
+                    <img src="assets/type_pokemon_${pokemon.type}.png" alt="${pokemon.type} icon">
+                    <h2>${pokemon.name}</h2>
+                </div>
             </div>
             `
     })
@@ -180,8 +182,10 @@ function displayMoves(pokemon) {
         movesContainer.innerHTML +=
             `<li class="move-card" onclick="chooseMove('${move.name}')">
                 <h4>${move.name}</h4>
-                <p>Type: ${move.type.name}</p>
-                <p>Class: ${move.damage_class.name}</p>
+                <div class="move-type">
+                    <img src="assets/type_pokemon_${move.type.name}.png" alt="${move.type.name} icon">
+                    <img src="assets/move-${move.damage_class.name}.png" alt="${move.damage_class.name} icon">
+                </div>
             </li>`;
     });
 }
