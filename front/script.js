@@ -68,12 +68,30 @@ socket.on('displaySelectedPokemon', (users) => {
 });
 
 socket.on('winner', (data) => {
-    // alert(`${data.winner} wins!`);
+    winner = true;
     turnLogContainer.innerHTML = ``;
     movesContainer.style.visibility = 'hidden';
     displayBattleLog(`${data.winner} is the winner!`);
+    document.getElementById('restartButton').classList.remove('is-hidden');
 });
 
+function restartGame() {
+    pokemonDisplayed = true;
+    winner = false;
+    socket.emit('restartGame');
+    document.getElementById('restartButton').classList.add('is-hidden');
+    displayTurnLog('Waiting for the other player to vote for restart...');
+}
+
+socket.on('gameRestarted', () => {
+    battleLogContainer.innerHTML = '';
+    turnLogContainer.innerHTML = '';
+    pokemonContainer.innerHTML = '';
+    movesContainer.style.visibility = 'hidden';
+    document.getElementById('restartButton').classList.add('is-hidden');
+    pokemonDisplayed = false;
+    pokemons = [];
+});
 socket.on('roomCreated', (roomName) => {
     alert(`Room ${roomName} created successfully`);
 });
@@ -92,7 +110,7 @@ socket.on('roomFull', () => {
 
 socket.on('startTurn', (data) => {
     myTurn = data.turn === socket.id;
-    if (myTurn) {
+    if (myTurn && !winner) {
         movesContainer.style.visibility = 'visible';
         displayTurnLog('It is your turn to choose an attack!');
     } else {
@@ -140,6 +158,8 @@ function joinRoom() {
 }
 
 async function displayPokemon() {
+    pokemonContainer.innerHTML = '';
+
     await getPokemon();
 
     pokemons.forEach((pokemon) => {

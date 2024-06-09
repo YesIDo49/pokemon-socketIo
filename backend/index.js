@@ -22,6 +22,7 @@ const rooms = {};
 const users = {};
 let maxUsers = 2;
 let turns = {};
+const restartVotes = {};
 let winner = false;
 
 io.on('connection', (socket) => {
@@ -138,7 +139,7 @@ io.on('connection', (socket) => {
                 if (effectiveness[moveType] && effectiveness[moveType][defenderType]) {
                     return effectiveness[moveType][defenderType];
                 }
-                return 'normal'; // Par défaut, l'efficacité est normale
+                return 'normal';
             }
 
             let effectivenessResult = determineEffectiveness(move.type.name, defender.userPokemon.type);
@@ -174,6 +175,26 @@ io.on('connection', (socket) => {
             turns[roomName] = nextTurn;
             io.to(roomName).emit('startTurn', { turn: nextTurn });
             io.to(roomName).emit('displaySelectedPokemon', [attacker, defender]);
+        }
+    });
+
+    socket.on('restartGame', () => {
+        const roomName = Object.keys(rooms).find(roomName => rooms[roomName].includes(socket.id));
+        if (roomName) {
+            if (!restartVotes[roomName]) {
+                restartVotes[roomName] = new Set();
+            }
+            restartVotes[roomName].add(socket.id);
+
+            if (restartVotes[roomName].size === rooms[roomName].length) {
+                rooms[roomName].forEach(socketId => {
+                    users[socketId].userPokemon = null;
+                });
+                turns[roomName] = null;
+                io.to(roomName).emit('gameRestarted');
+                io.to(roomName).emit('updateUsers', { room: roomName, users: getRoomUsers(roomName), winner: false });
+                restartVotes[roomName].clear();
+            }
         }
     });
 
